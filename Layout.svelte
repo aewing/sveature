@@ -196,7 +196,7 @@
       <p>No components were detected in your application.</p>
       <p>
         Double check your sveature.config.js and create some feature files using
-        mdsvex (default pattern is src/**/features/*.svx)
+        Svelte (default pattern is src/**/features/*.svelte)
       </p>
     {/if}
   </div>

@@ -1,4 +1,5 @@
 import { Command } from "@oclif/command";
+import * as chalk from "chalk";
 
 export default class Build extends Command {
   static description = "build feature library";
@@ -12,10 +13,10 @@ export default class Build extends Command {
   async run() {
     const config = require("../../rollup")();
     const rollup = require("rollup");
-    this.log("building feature library");
+    this.log(chalk.cyan("⌚ Building Sveature"));
     const bundle = await rollup.rollup(config);
     await bundle.write(config.output);
-    this.log("built successfully");
+    this.log(chalk.green("✔ Build completed"));
     this.exit(0);
   }
 }

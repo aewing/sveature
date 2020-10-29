@@ -1,5 +1,6 @@
 import { Command } from "@oclif/command";
 import cli from "cli-ux";
+import * as chalk from "chalk";
 
 export default class Component extends Command {
   static description = "create a new component & related files";
@@ -21,7 +22,7 @@ export default class Component extends Command {
     const componentDir = path.resolve(process.cwd(), `src/components/${name}`);
 
     if (fs.existsSync(componentDir)) {
-      this.error("Component already exists!");
+      this.error(chalk.red("❌ Component already exists!"));
     }
 
     this.log(`Creating component at ${componentDir}`);
@@ -43,7 +44,7 @@ export default class Component extends Command {
         source
       );
     });
-    this.log("Component created");
+    this.log(chalk.green("✔ Component created"));
 
     this.exit(0);
   }

@@ -43,7 +43,8 @@ function generateRollupConfig(options = {}) {
         key: "@features",
         importStar: true,
         include:
-          options.pattern || path.join(process.cwd(), "src/**/features/*.svx"),
+          options.pattern ||
+          path.join(process.cwd(), "src/**/features/*.svelte"),
         exclude: ["node_modules/"],
       }),
       dev && livereload(),
@@ -52,11 +53,7 @@ function generateRollupConfig(options = {}) {
         hydratable: true,
         emitCss: true,
         ...configOr("svelte.config", {
-          extensions: [".svelte", ".svx"],
-          preprocess: [
-            require("mdsvex").mdsvex(),
-            require("svelte-preprocess")(),
-          ],
+          preprocess: [require("svelte-preprocess")()],
         }),
       }),
       resolve({

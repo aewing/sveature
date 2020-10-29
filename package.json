@@ -1,13 +1,12 @@
 {
   "name": "sveature",
-  "version": "0.0.0",
+  "version": "0.0.4",
   "author": "Andrew Ewing @aewing",
   "bin": {
     "sveature": "./bin/run"
   },
   "bugs": "https://github.com/aewing/sveature/issues",
   "dependencies": {
-    "@jackfranklin/rollup-plugin-import-glob": "^0.1.0",
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^3",
@@ -16,10 +15,12 @@
     "@rollup/plugin-node-resolve": "^10.0.0",
     "@rollup/plugin-replace": "^2.3.4",
     "@rollup/plugin-typescript": "^6.1.0",
+    "chalk": "^4.1.0",
+    "cli-ux": "^5.5.0",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^9.0.1",
-    "mdsvex": "^0.8.8",
     "prettier-plugin-svelte": "^1.4.1",
+    "rollup": "^2.32.1",
     "rollup-plugin-glob-files": "^2.0.2",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-postcss": "^3.1.8",
@@ -40,7 +41,6 @@
     "eslint-plugin-svelte3": "^2.7.3",
     "eslint-svelte3-preprocess": "^0.0.4",
     "globby": "^10",
-    "rollup": "^2.32.1",
     "ts-node": "^8",
     "typescript": "^3.3"
   },
@@ -75,7 +75,7 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint . --ext .ts --config .eslintrc",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "prepack": "rm -rf lib && tsc -b && cp -R src/scaffold lib/ && oclif-dev manifest && oclif-dev readme",
     "test": "echo NO TESTS",
     "version": "oclif-dev readme && git add README.md"
   },

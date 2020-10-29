@@ -3,7 +3,7 @@
 /* eslint-disable unicorn/catch-error-name */
 import { Command, flags } from "@oclif/command";
 import cli from "cli-ux";
-import chalk from "chalk";
+import * as chalk from "chalk";
 
 export default class Init extends Command {
   static description = "initialize sveature in a new or existing project";
@@ -50,19 +50,17 @@ export default class Init extends Command {
       const initSapper = await cli.confirm(
         "Would you like to initialize a Sapper project in this directory?"
       );
+
       if (initSapper) {
-        spawn.sync(
-          "npx",
-          ["degit", "sveltejs/sapper-template#rollup", ".", "--force"],
-          {
-            stdio: "inherit",
-          }
-        );
-        spawn.sync("yarn", ["install"], { stdio: "inherit" });
-        spawn.sync("node", ["scripts/setupTypeScript.js"], {
-          stdio: "inherit",
-        });
-        spawn.sync("yarn", ["install"], { stdio: "inherit" });
+        this.log(chalk.cyan("⌚ Installing Sapper"));
+        spawn.sync("npx", [
+          "degit",
+          "sveltejs/sapper-template#rollup",
+          ".",
+          "--force",
+        ]);
+        spawn.sync("node", ["scripts/setupTypeScript.js"]);
+        spawn.sync("yarn", ["install"]);
       } else {
         invalidPackageConfiguration = true;
       }
@@ -75,26 +73,25 @@ export default class Init extends Command {
         )
       );
     } else {
-      spawn.sync("yarn", ["upgrade"], { stdio: "inherit" });
-      spawn.sync(
-        "yarn",
-        [
-          "add",
-          "-D",
-          "@testing-library/dom",
-          "@testing-library/svelte",
-          "jest",
-          "ts-jest",
-          "svelte-jester",
-          "svelte-htm",
-          "@testing-library/jest-dom",
-          "postcss",
-          "postcss-preset-env",
-          "postcss-font-magician@^2.3.1",
-        ],
-        { stdio: "inherit" }
+      this.log(
+        chalk.cyan("⌚ Upgrading packages & installing testing utilities")
       );
-      spawn.sync("yarn", ["link", "sveature"]);
+      spawn.sync("yarn", ["upgrade"]);
+      spawn.sync("yarn", [
+        "add",
+        "-D",
+        "@testing-library/dom",
+        "@testing-library/svelte",
+        "jest",
+        "ts-jest",
+        "svelte-jester",
+        "svelte-htm",
+        "@testing-library/jest-dom",
+        "postcss",
+        "postcss-preset-env",
+        "postcss-font-magician@^2.3.1",
+        "sveature",
+      ]);
       const pkg = JSON.parse(
         fs.readFileSync(path.join(process.cwd(), "package.json")).toString()
       );
