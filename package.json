@@ -54,7 +54,9 @@
     "/oclif.manifest.json",
     "/rollup.js",
     "/svelte.js",
-    "/Layout.svelte"
+    "/Layout.svelte",
+    "/README.md",
+    "/LICENSE.md"
   ],
   "homepage": "https://github.com/aewing/sveature",
   "keywords": [
