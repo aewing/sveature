@@ -1,6 +1,6 @@
 {
   "name": "sveature",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "Andrew Ewing @aewing",
   "bin": {
     "sveature": "./bin/run"

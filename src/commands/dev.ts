@@ -31,6 +31,7 @@ export default class Dev extends Command {
         include: [
           `${process.cwd()}/${config.dir || "docs/"}src/**`,
           `${process.cwd()}/src/**`,
+          `${path.resolve(__dirname, "../../Layout.svelte")}`,
         ],
         chokidar: {
           atomic: true,
