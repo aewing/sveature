@@ -21,11 +21,21 @@ const onwarn = (warning, onwarn) =>
   onwarn(warning);
 
 function configOr(name, fallback = {}) {
-  const filename = path.join(process.cwd(), name);
+  const filename = path.resolve(process.cwd(), name);
   return fs.existsSync(filename) ? require(filename) : fallback;
 }
 
 function generateRollupConfig(options = {}) {
+  let svelteConfig = {}, postcssConfig = {};
+
+  try {
+    svelteConfig = require(path.join(process.cwd(), "svelte.config"));
+  } catch(e) {}
+
+  try {
+    postcssConfig = require(path.join(process.cwd(), "postcss.config"));
+  } catch(e) {}
+
   return {
     input: options.input || path.resolve(process.cwd(), "docs/src/main.ts"),
     output: options.output || {
@@ -52,16 +62,14 @@ function generateRollupConfig(options = {}) {
         dev,
         hydratable: true,
         emitCss: true,
-        ...configOr("svelte.config", {
-          preprocess: [require("svelte-preprocess")()],
-        }),
+        ...svelteConfig,
       }),
       resolve({
         browser: true,
         dedupe: ["svelte"],
       }),
       commonjs(),
-      postcss(configOr("postcss.config", {})),
+      postcss(postcssConfig),
       dev &&
         serve({
           contentBase: path.join(process.cwd(), "docs/dist"),

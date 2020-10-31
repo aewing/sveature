@@ -143,10 +143,11 @@
   }
   .sidebar a {
     text-decoration: none;
-    color: rgb(25, 35, 155);
+    color: var(--sveature-link-color, hsl(260, 70%, 30%));
   }
   .content {
     padding: 8px 16px;
+    width: 100%;
   }
 </style>
 

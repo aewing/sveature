@@ -30,11 +30,8 @@ export default class Hello extends Command {
       watch: {
         exclude: ["node_modules/**", "docs/dist/**"],
         include: [
-          path.join(process.cwd(), config.dir || "docs/", "src/"),
-          path.join(
-            process.cwd(),
-            config.pattern || "src/**/features/*.svelte"
-          ),
+          `${process.cwd()}/${config.dir || "docs/"}src/**`,
+          `${process.cwd()}/src/**`,
         ],
       },
     });
@@ -61,8 +58,7 @@ export default class Hello extends Command {
           );
           end(1);
         } else {
-          this.log(chalk.red("❌", event.error.message));
-          end(2);
+          this.error(event.error);
         }
       }
     });
