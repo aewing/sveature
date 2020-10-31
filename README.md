@@ -129,7 +129,7 @@ $ npm install -g sveature
 $ sveature COMMAND
 running command...
 $ sveature (-v|--version|version)
-sveature/0.0.6-alpha.4 darwin-x64 node-v12.16.2
+sveature/0.0.7 linux-x64 node-v14.9.0
 $ sveature --help [COMMAND]
 USAGE
   $ sveature COMMAND
@@ -159,7 +159,7 @@ EXAMPLE
        building feature library
 ```
 
-_See code: [src/commands/build.ts](https://github.com/aewing/sveature/blob/v0.0.6-alpha.4/src/commands/build.ts)_
+_See code: [src/commands/build.ts](https://github.com/aewing/sveature/blob/v0.0.7/src/commands/build.ts)_
 
 ## `sveature component`
 
@@ -174,7 +174,7 @@ EXAMPLE
        creating new component
 ```
 
-_See code: [src/commands/component.ts](https://github.com/aewing/sveature/blob/v0.0.6-alpha.4/src/commands/component.ts)_
+_See code: [src/commands/component.ts](https://github.com/aewing/sveature/blob/v0.0.7/src/commands/component.ts)_
 
 ## `sveature dev`
 
@@ -189,7 +189,7 @@ EXAMPLE
        Starting Sveature in development mode
 ```
 
-_See code: [src/commands/dev.ts](https://github.com/aewing/sveature/blob/v0.0.6-alpha.4/src/commands/dev.ts)_
+_See code: [src/commands/dev.ts](https://github.com/aewing/sveature/blob/v0.0.7/src/commands/dev.ts)_
 
 ## `sveature help [COMMAND]`
 
@@ -224,5 +224,5 @@ EXAMPLE
   $ sveature init
 ```
 
-_See code: [src/commands/init.ts](https://github.com/aewing/sveature/blob/v0.0.6-alpha.4/src/commands/init.ts)_
+_See code: [src/commands/init.ts](https://github.com/aewing/sveature/blob/v0.0.7/src/commands/init.ts)_
 <!-- commandsstop -->
