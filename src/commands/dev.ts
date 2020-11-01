@@ -19,26 +19,11 @@ export default class Dev extends Command {
     const chokidar = require("chokidar");
 
     const configPath = path.join(process.cwd(), "sveature.config.js");
-    const config: any = {};
+    const config: any = { dev: true, port: 10001 };
     if (fs.existsSync(configPath)) {
       Object.assign(config, require(configPath));
     }
     const rollupConfig = require("../../rollup")(config);
-    const watcherConfig = {
-      ...rollupConfig,
-      watch: {
-        exclude: ["node_modules/**", "docs/dist/**"],
-        include: [
-          `${process.cwd()}/${config.dir || "docs/"}src/**`,
-          `${process.cwd()}/src/**`,
-          `${path.resolve(__dirname, "../../Layout.svelte")}`,
-        ],
-        chokidar: {
-          atomic: true,
-          alwaysStat: true,
-        },
-      },
-    };
 
     this.log("▶ Starting Sveature in development mode");
 
@@ -100,7 +85,7 @@ export default class Dev extends Command {
       if (watcher) {
         watcher.close();
       }
-      watcher = rollup.watch(watcherConfig);
+      watcher = rollup.watch(rollupConfig);
       watcher.on("event", eventHandler);
     };
   }

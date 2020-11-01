@@ -25,6 +25,7 @@ export default class Init extends Command {
     const fs = require("fs-extra");
     const path = require("path");
     const spawn = require("cross-spawn");
+    const { flags } = this.parse(Init);
 
     let invalidPackageConfiguration = false;
 
@@ -124,8 +125,6 @@ export default class Init extends Command {
         process.exit();
       }
     }
-
-    const { flags } = this.parse(Init);
 
     let dir = flags.dir;
     if (!dir) {
