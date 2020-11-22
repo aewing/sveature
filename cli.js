@@ -43,7 +43,7 @@ switch (command) {
         })
       );
       fs.writeFileSync(
-        path.join(sveatureDir, "features.ts"),
+        path.join(sveatureDir, config.filename || "_features.ts"),
         [
           ...imports,
           "export default {",
