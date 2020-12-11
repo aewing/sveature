@@ -25,26 +25,14 @@ if (!fs.existsSync(sveatureDir)) {
   fs.mkdirSync(sveatureDir);
 }
 
+const featureMap = {
+  navigation: {},
+  routes: {},
+};
+
 switch (command) {
   case "watch":
-    const featureMap = {
-      navigation: {},
-      routes: {},
-    };
-    const writeFeatures = debounce(1000, () => {
-      fs.writeFileSync(
-        path.join(sveatureDir, config.filename || "_features.ts"),
-        [
-          `export const routes = {${Object.entries(featureMap.routes)
-            .map(
-              ([key, [title, filename]]) =>
-                `"${key}": ["${title}", () => import("${filename}").then(m => m.default)]`
-            )
-            .join(", ")}};`,
-          `export const navigation = ${JSON.stringify(featureMap.navigation)}`,
-        ].join("\n")
-      );
-    });
+    const debounceWrite = debounce(1000, writeFeatures);
     watchFeatures(config.pattern, async (event, filename) => {
       try {
         let source = fs.readFileSync(filename).toString();
@@ -79,7 +67,11 @@ switch (command) {
                   : prop.value.value,
             };
           }, {});
-        if (!metadata.navigation || (!metadata.label && !metadata.title) || !metadata.slug) {
+        if (
+          !metadata.navigation ||
+          (!metadata.label && !metadata.title) ||
+          !metadata.slug
+        ) {
           console.warn(
             `Invalid feature metadata exported by ${filename}. Expected "navigation", "label", and "slug" properties.`
           );
@@ -101,11 +93,11 @@ switch (command) {
             slug: metadata.slug,
           });
         }
-        featureMap.routes[metadata.slug] = [metadata.title || metadata.label, filename.replace(
-          "src/components",
-          "$components"
-        )];
-        writeFeatures();
+        featureMap.routes[metadata.slug] = [
+          metadata.title || metadata.label,
+          filename.replace("src/components", "$components"),
+        ];
+        debounceWrite();
       } catch (err) {
         console.error(err);
       }
@@ -132,4 +124,19 @@ function getConfig() {
 function watchFeatures(pattern = DEFAULT_PATTERN, callback) {
   console.log(`Watching feature files @ ${pattern}`);
   chokidar.watch(pattern).on("all", callback);
+}
+
+function writeFeatures() {
+  fs.writeFileSync(
+    path.join(sveatureDir, config.filename || "_features.ts"),
+    [
+      `export const routes = {${Object.entries(featureMap.routes)
+        .map(
+          ([key, [title, filename]]) =>
+            `"${key}": ["${title}", () => import("${filename}").then(m => m.default)]`
+        )
+        .join(", ")}};`,
+      `export const navigation = ${JSON.stringify(featureMap.navigation)}`,
+    ].join("\n")
+  );
 }
