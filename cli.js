@@ -21,44 +21,27 @@ const sveatureDir = path.resolve(
   process.cwd(),
   config.dir || "src/routes/docs"
 );
-console.log("Sveature directory", sveatureDir);
 if (!fs.existsSync(sveatureDir)) {
   fs.mkdirSync(sveatureDir);
 }
 
 switch (command) {
   case "watch":
-    const featureMap = {};
+    const featureMap = {
+      navigation: {},
+      routes: {},
+    };
     const writeFeatures = debounce(1000, () => {
-      console.log("Writing features...", sveatureDir);
-      const imports = [];
-      Object.entries(featureMap).forEach(([component, features]) =>
-        Object.entries(features).forEach(([feature, filename]) => {
-          imports.push(
-            `import ${component.replace(/ /g, "")}${feature.replace(
-              / /g,
-              ""
-            )} from "${filename}";`
-          );
-        })
-      );
       fs.writeFileSync(
         path.join(sveatureDir, config.filename || "_features.ts"),
         [
-          ...imports,
-          "export default {",
-          Object.entries(featureMap)
+          `export const routes = {${Object.entries(featureMap.routes)
             .map(
-              ([component, features]) =>
-                `  "${component}": {${Object.keys(features)
-                  .map(
-                    (feature) => `
-    "${feature}": ${component.replace(/ /g, "")}${feature.replace(/ /g, "")},`
-                  )
-                  .join("")}\n  }`
+              ([key, [title, filename]]) =>
+                `"${key}": ["${title}", () => import("${filename}").then(m => m.default)]`
             )
-            .join(",\n"),
-          "};",
+            .join(", ")}};`,
+          `export const navigation = ${JSON.stringify(featureMap.navigation)}`,
         ].join("\n")
       );
     });
@@ -87,20 +70,41 @@ switch (command) {
             })
           )
           .declarations.shift()
-          .init.properties.reduce(
-            (obj, prop) => ({
+          .init.properties.reduce((obj, prop) => {
+            return {
               ...obj,
-              [prop.key.name]: prop.value.value,
-            }),
-            {}
+              [prop.key.name]:
+                prop.value.type === "ArrayExpression"
+                  ? prop.value.elements.map((e) => e.value)
+                  : prop.value.value,
+            };
+          }, {});
+        if (!metadata.navigation || (!metadata.label && !metadata.title) || !metadata.slug) {
+          console.warn(
+            `Invalid feature metadata exported by ${filename}. Expected "navigation", "label", and "slug" properties.`
           );
-        if (!featureMap[metadata.component]) {
-          featureMap[metadata.component] = {};
+          return;
         }
-        featureMap[metadata.component][metadata.feature] = filename.replace(
+        const navTarget = metadata.navigation.reduce((acc, key) => {
+          if (!acc[key]) {
+            acc[key] = { _items: [] };
+          }
+          return acc[key];
+        }, featureMap.navigation);
+        const previous = navTarget._items.find((t) => t.slug === metadata.slug);
+        if (previous) {
+          previous.title = metadata.title || metadata.label;
+          previous.label = metadata.label || metadata.title;
+        } else {
+          navTarget._items.push({
+            label: metadata.label || metadata.title,
+            slug: metadata.slug,
+          });
+        }
+        featureMap.routes[metadata.slug] = [metadata.title || metadata.label, filename.replace(
           "src/components",
           "$components"
-        );
+        )];
         writeFeatures();
       } catch (err) {
         console.error(err);

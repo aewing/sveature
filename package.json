@@ -1,6 +1,6 @@
 {
   "name": "sveature",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.10",
   "main": "util.js",
   "bin": {
     "sveature": "cli.js"
@@ -16,6 +16,7 @@
     "sveature"
   ],
   "devDependencies": {
+    "prettier": "^2.2.1",
     "svelte": "^3.29.7"
   }
 }
