@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const chokidar = require("chokidar");
+const glob = require("glob");
 const { debounce } = require("throttle-debounce");
 const svelte = require("svelte/compiler");
 
@@ -30,85 +31,22 @@ const featureMap = {
   routes: {},
 };
 
-switch (command) {
-  case "watch":
-    const debounceWrite = debounce(1000, writeFeatures);
-    watchFeatures(config.pattern, async (event, filename) => {
-      try {
-        let source = fs.readFileSync(filename).toString();
-        if (svelteConfig.preprocess) {
-          const { code } = await svelte.preprocess(
-            source,
-            svelteConfig.preprocess,
-            {
-              filename,
-            }
-          );
-          source = code;
-        }
-        const compiled = svelte.compile(source, {
-          filename,
-          generate: false,
-          css: false,
-        });
-        const metadata = compiled.ast.module.content.body
-          .find((node) =>
-            node.declarations.some((decl) => {
-              return decl.id.name === "metadata";
-            })
-          )
-          .declarations.shift()
-          .init.properties.reduce((obj, prop) => {
-            return {
-              ...obj,
-              [prop.key.name]:
-                prop.value.type === "ArrayExpression"
-                  ? prop.value.elements.map((e) => e.value)
-                  : prop.value.value,
-            };
-          }, {});
-        if (
-          !metadata.navigation ||
-          (!metadata.label && !metadata.title) ||
-          !metadata.slug
-        ) {
-          console.warn(
-            `Invalid feature metadata exported by ${filename}. Expected "navigation", "label", and "slug" properties.`
-          );
-          return;
-        }
-        const navTarget = metadata.navigation.reduce((acc, key) => {
-          if (!acc[key]) {
-            acc[key] = { _items: [] };
-          }
-          return acc[key];
-        }, featureMap.navigation);
-        const previous = navTarget._items.find((t) => t.slug === metadata.slug);
-        if (previous) {
-          previous.title = metadata.title || metadata.label;
-          previous.label = metadata.label || metadata.title;
-        } else {
-          navTarget._items.push({
-            label: metadata.label || metadata.title,
-            slug: metadata.slug,
-          });
-        }
-        featureMap.routes[metadata.slug] = [
-          metadata.title || metadata.label,
-          filename.replace("src/components", "$components"),
-        ];
-        debounceWrite();
-      } catch (err) {
-        console.error(err);
-      }
-    });
-    break;
-  case "build":
-    writeFeatures(config);
-    break;
-  default:
-    console.log(`Invalid command: ${command}`);
-}
+(async () => {
+  switch (command) {
+    case "watch":
+      const debounceWrite = debounce(1000, writeFeatures);
+      watchFeatures(config.pattern, (_, f) =>
+        assembleFeature(f).then(() => debounceWrite())
+      );
+      break;
+    case "build":
+      await Promise.all(glob.sync(config.pattern).map(assembleFeature));
+      writeFeatures(config);
+      break;
+    default:
+      console.log(`Invalid command: ${command}`);
+  }
+})();
 
 function getConfig() {
   const configPath = require("path").resolve(
@@ -119,6 +57,75 @@ function getConfig() {
     return require(configPath);
   }
   return {};
+}
+
+async function assembleFeature(filename) {
+  try {
+    let source = fs.readFileSync(filename).toString();
+    if (svelteConfig.preprocess) {
+      const { code } = await svelte.preprocess(
+        source,
+        svelteConfig.preprocess,
+        {
+          filename,
+        }
+      );
+      source = code;
+    }
+    const compiled = svelte.compile(source, {
+      filename,
+      generate: false,
+      css: false,
+    });
+    const metadata = compiled.ast.module.content.body
+      .find((node) =>
+        node.declarations.some((decl) => {
+          return decl.id.name === "metadata";
+        })
+      )
+      .declarations.shift()
+      .init.properties.reduce((obj, prop) => {
+        return {
+          ...obj,
+          [prop.key.name]:
+            prop.value.type === "ArrayExpression"
+              ? prop.value.elements.map((e) => e.value)
+              : prop.value.value,
+        };
+      }, {});
+    if (
+      !metadata.navigation ||
+      (!metadata.label && !metadata.title) ||
+      !metadata.slug
+    ) {
+      console.warn(
+        `Invalid feature metadata exported by ${filename}. Expected "navigation", "label", and "slug" properties.`
+      );
+      return;
+    }
+    const navTarget = metadata.navigation.reduce((acc, key) => {
+      if (!acc[key]) {
+        acc[key] = { _items: [] };
+      }
+      return acc[key];
+    }, featureMap.navigation);
+    const previous = navTarget._items.find((t) => t.slug === metadata.slug);
+    if (previous) {
+      previous.title = metadata.title || metadata.label;
+      previous.label = metadata.label || metadata.title;
+    } else {
+      navTarget._items.push({
+        label: metadata.label || metadata.title,
+        slug: metadata.slug,
+      });
+    }
+    featureMap.routes[metadata.slug] = [
+      metadata.title || metadata.label,
+      filename.replace("src/components", "$components"),
+    ];
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 function watchFeatures(pattern = DEFAULT_PATTERN, callback) {

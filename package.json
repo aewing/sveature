@@ -1,6 +1,6 @@
 {
   "name": "sveature",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "main": "util.js",
   "bin": {
     "sveature": "cli.js"
