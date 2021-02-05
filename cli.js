@@ -12,7 +12,7 @@ const args = require("minimist")(process.argv.slice(2));
 const [command, ...params] = args._;
 
 let svelteConfig = {};
-const svelteConfigPath = path.resolve(process.cwd(), "svelte.config.js");
+const svelteConfigPath = path.resolve(process.cwd(), "svelte.config.cjs");
 if (fs.existsSync(svelteConfigPath)) {
   svelteConfig = require(svelteConfigPath);
 }
@@ -51,7 +51,7 @@ const featureMap = {
 function getConfig() {
   const configPath = require("path").resolve(
     process.cwd(),
-    "sveature.config.js"
+    "sveature.config.cjs"
   );
   if (require("fs").existsSync(configPath)) {
     return require(configPath);
@@ -143,7 +143,21 @@ function writeFeatures() {
             `"${key}": ["${title}", () => import("${filename}").then(m => m.default)]`
         )
         .join(", ")}};`,
-      `export const navigation = ${JSON.stringify(featureMap.navigation)}`,
+      `export const navigation = ${JSON.stringify(
+        alphaSort(featureMap.navigation)
+      )}`,
     ].join("\n")
   );
+}
+
+function alphaSort(obj) {
+  return Object.keys(obj)
+    .sort()
+    .reduce((acc, key) => ({
+      ...acc,
+      [key]:
+        typeof obj[key] === "object" && obj[key] !== null
+          ? alphaSort(obj[key])
+          : obj[key],
+    }));
 }

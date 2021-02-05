@@ -1,6 +1,6 @@
 {
   "name": "sveature",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "main": "util.js",
   "bin": {
     "sveature": "cli.js"
@@ -8,8 +8,10 @@
   "dependencies": {
     "chokidar": "^3.4.3",
     "glob": "^7.1.6",
+    "inquirer-directory": "^2.2.0",
     "minimist": "^1.2.5",
-    "throttle-debounce": "^3.0.1"
+    "throttle-debounce": "^3.0.1",
+    "vorpal": "^1.12.0"
   },
   "keywords": [
     "svelte",
